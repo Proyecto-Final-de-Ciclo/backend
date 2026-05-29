@@ -28,7 +28,7 @@ public class DemoApplication {
 
         @Bean
         // para que no se ejecuta en test, si no intenta crear cosas con categoria null
-        @Profile("!test") 
+        @Profile("dev")
         CommandLineRunner initData(AnuncioService serviceAnuncio, UsuarioService serviceUsuario, CategoriaService servicioCategoria) {
                 return args -> {
                         // categorías
