@@ -121,9 +121,6 @@ public class SecurityConfig {
   @Autowired
   UserDetailsService userDetailsService;
 
-  @Autowired
-  private AuthEntryPointJwt authEntryPointJwt;
-
   @Bean
   public AuthTokenFilter authenticationJwtTokenFilter() {
     return new AuthTokenFilter();
