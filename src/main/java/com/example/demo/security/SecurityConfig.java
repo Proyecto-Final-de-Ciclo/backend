@@ -153,7 +153,6 @@ public class SecurityConfig {
     http
         .csrf(csrf -> csrf.disable())
         .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin())) // Permitir frames para H2
-        .cors(org.springframework.security.config.Customizer.withDefaults())
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/h2-console/**").permitAll() // Permitir acceso a H2
             .anyRequest().permitAll());
