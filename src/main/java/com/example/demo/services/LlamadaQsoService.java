@@ -19,10 +19,13 @@ public class LlamadaQsoService {
 
     public List<LlamadaQso> obtenerActivas() {
         return llamadaQsoRepository
-            .findByExpiraEnAfterOrderByFechaPublicacionDesc(LocalDateTime.now());
+                .findByExpiraEnAfterOrderByFechaPublicacionDesc(LocalDateTime.now());
     }
 
     public LlamadaQso publicar(LlamadaQso llamada, int minutosExpiracion) {
+        List<LlamadaQso> anteriores = llamadaQsoRepository.findByUsuario(llamada.getUsuario());
+        llamadaQsoRepository.deleteAll(anteriores);
+
         llamada.setFechaPublicacion(LocalDateTime.now());
         llamada.setExpiraEn(LocalDateTime.now().plusMinutes(minutosExpiracion));
         return llamadaQsoRepository.save(llamada);
@@ -43,7 +46,7 @@ public class LlamadaQsoService {
     @Scheduled(fixedRate = 300000)
     public void limpiarExpiradas() {
         List<LlamadaQso> expiradas = llamadaQsoRepository
-            .findByExpiraEnBefore(LocalDateTime.now());
+                .findByExpiraEnBefore(LocalDateTime.now());
         llamadaQsoRepository.deleteAll(expiradas);
     }
 }

@@ -74,6 +74,7 @@ public class AnuncioService {
         UsuarioPublicoDto usuarioPublico = new UsuarioPublicoDto(
                 uid,
                 u.getNombre(),
+                u.getRol().name(),
                 u.getFechaRegistro(),
                 reseñaService.calcularMedia(uid),
                 reseñaService.contarReseñas(uid),

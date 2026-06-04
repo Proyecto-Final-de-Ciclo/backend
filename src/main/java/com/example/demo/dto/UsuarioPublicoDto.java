@@ -15,6 +15,7 @@ public class UsuarioPublicoDto {
 
     private Long id;
     private String nombre;
+    private String rol;
     private LocalDate fechaRegistro;
     private Double mediaEstrellas;
     private Integer totalReseñas;

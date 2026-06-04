@@ -86,8 +86,14 @@ public class UsuarioService {
     public Usuario editarPerfil(PerfilRequestDto dto) {
         Usuario usuario = obtenerUsuarioConectado();
 
+        if (dto.getIndicativo() != null && !dto.getIndicativo().isBlank()) {
+            if (!dto.getIndicativo().matches("^[A-Za-z]{1,3}\\d[A-Za-z]{1,4}$")) {
+                throw new RuntimeException("El indicativo no tiene un formato válido (ej: EA1IWS).");
+            }
+        }
+
         usuario.setDescripcion(dto.getDescripcion());
-        usuario.setIndicativo(dto.getIndicativo());
+        usuario.setIndicativo(dto.getIndicativo() != null ? dto.getIndicativo().toUpperCase() : null);
         usuario.setLocalizacion(dto.getLocalizacion());
         usuario.setMostrarEmail(dto.isMostrarEmail());
 

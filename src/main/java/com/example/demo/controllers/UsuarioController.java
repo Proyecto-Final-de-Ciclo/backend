@@ -102,6 +102,7 @@ public class UsuarioController {
         return new UsuarioPublicoDto(
                 u.getId(),
                 u.getNombre(),
+                u.getRol().name(),
                 u.getFechaRegistro(),
                 reseñaService.calcularMedia(u.getId()),
                 reseñaService.contarReseñas(u.getId()),

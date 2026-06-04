@@ -27,6 +27,7 @@ public class ReseñaService {
         UsuarioPublicoDto autorDto = new UsuarioPublicoDto(
                 reseña.getAutor().getId(),
                 reseña.getAutor().getNombre(),
+                reseña.getAutor().getRol().name(),
                 reseña.getAutor().getFechaRegistro(),
                 null,
                 0,
