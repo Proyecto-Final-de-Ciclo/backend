@@ -1,5 +1,6 @@
 package com.example.demo.services;
 
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -34,24 +35,28 @@ public class NoticiaService {
         List<NoticiaDto> resultado = new ArrayList<>();
         LocalDate haceUnMes = LocalDate.now().minusDays(30);
 
-        // para cada feed
         for (int i = 0; i < FEEDS.length; i++) {
             try {
-                // se pasa de string a URL
+                // Abrimos la conexión HTTP manualmente para configurarla
                 URL url = new URL(FEEDS[i]);
-                // crea el lector de noticias de la librería Rome
-                SyndFeedInput input = new SyndFeedInput();
-                // se descarga el XML de las noticias de la URL y
-                // se parsea con input.bild para que devuelva el
-                // SyndFeed con todas las noticias estrcturadas
-                SyndFeed feed = input.build(new XmlReader(url));
+                HttpURLConnection conexion = (HttpURLConnection) url.openConnection();
 
-                // para cada noticia del feed
+                // User-Agent: sin esto, muchos sitios WordPress devuelven 403
+                conexion.setRequestProperty("User-Agent",
+                    "Mozilla/5.0 (compatible; RadiOferta/1.0)");
+
+                // Timeouts de 10 segundos para no quedarnos colgados
+                conexion.setConnectTimeout(10_000);
+                conexion.setReadTimeout(10_000);
+
+                // Leemos el feed desde la conexión ya configurada
+                SyndFeedInput input = new SyndFeedInput();
+                SyndFeed feed = input.build(new XmlReader(conexion.getInputStream()));
+
                 for (SyndEntry entry : feed.getEntries()) {
                     if (entry.getPublishedDate() == null)
                         continue;
 
-                    // convertimos la fecha de la noticia a LocalDate
                     LocalDate fecha = entry.getPublishedDate()
                             .toInstant()
                             .atZone(ZoneId.systemDefault())
@@ -60,7 +65,6 @@ public class NoticiaService {
                     if (fecha.isAfter(haceUnMes)) {
                         String descripcion = "";
                         if (entry.getDescription() != null) {
-                            // quitamos las etiquetas HTML que pueda tener
                             descripcion = entry.getDescription().getValue()
                                     .replaceAll("<[^>]*>", "")
                                     .replaceAll("&nbsp;", " ")
@@ -83,6 +87,7 @@ public class NoticiaService {
                     }
                 }
             } catch (Exception e) {
+                // Ahora con timeout de 10s, este catch salta rápido en vez de esperar 3 min
                 System.err.println("Error leyendo feed " + FUENTES[i] + ": " + e.getMessage());
             }
         }
