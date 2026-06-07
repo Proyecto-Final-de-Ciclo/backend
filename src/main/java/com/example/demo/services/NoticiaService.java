@@ -19,7 +19,6 @@ import com.rometools.rome.io.XmlReader;
 public class NoticiaService {
 
     private static final String[] FEEDS = {
-            "https://www.ure.es/feed",
             "https://ea1uro.com/radio/feed",
             "https://selvamarnoticias.com/feed"
     };
