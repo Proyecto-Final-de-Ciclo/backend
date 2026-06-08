@@ -111,11 +111,10 @@ public class AnuncioService {
     public Page<AnuncioConImagenesDto> obtenerTodosConImagenes(
             String nombre, Long categoriaId,
             Estado estado, Double precioMin, Double precioMax,
-            Long usuarioId,
             Pageable pageable) {
 
         Page<Anuncio> pagina = anuncioRepositorio.findConFiltros(nombre, categoriaId, estado, precioMin, precioMax,
-                usuarioId, pageable);
+                pageable);
 
         return pagina.map(anuncio -> toDto(anuncio));
     }

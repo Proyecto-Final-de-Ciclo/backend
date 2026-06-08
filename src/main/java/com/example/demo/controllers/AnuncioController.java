@@ -72,13 +72,10 @@ public class AnuncioController {
 			return ResponseEntity.badRequest().build();
 		}
 
-		Usuario usuarioConectado = usuarioService.obtenerUsuarioConectado();
-		Long usuarioId = usuarioConectado != null ? usuarioConectado.getId() : null;
-
 		Pageable pageable = PageRequest.of(page, size);
 
 		Page<AnuncioConImagenesDto> resultado = anuncioService.obtenerTodosConImagenes(
-				nombre, categoriaId, estado, precioMin, precioMax, usuarioId, pageable);
+				nombre, categoriaId, estado, precioMin, precioMax, pageable);
 
 		if (resultado.isEmpty()) {
 			return ResponseEntity.notFound().build();

@@ -27,14 +27,12 @@ public interface AnuncioRepository extends JpaRepository<Anuncio, Long> {
                         "(:categoriaId IS NULL OR a.categoria.id = :categoriaId) AND " +
                         "(:estado    IS NULL OR a.estado    = :estado)    AND " +
                         "(:precioMin IS NULL OR a.precio   >= :precioMin) AND " +
-                        "(:precioMax IS NULL OR a.precio   <= :precioMax) AND " +
-                        "(:usuarioId IS NULL OR a.usuario.id != :usuarioId)")
+                        "(:precioMax IS NULL OR a.precio   <= :precioMax)")
         Page<Anuncio> findConFiltros(
                         @Param("nombre") String nombre,
                         @Param("categoriaId") Long categoriaId,
                         @Param("estado") Estado estado,
                         @Param("precioMin") Double precioMin,
                         @Param("precioMax") Double precioMax,
-                        @Param("usuarioId") Long usuarioId,
                         Pageable pageable);
 }
