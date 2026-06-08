@@ -79,7 +79,9 @@ public class UsuarioController {
         Usuario usuario = usuarioService.obtenerPorId(id);
         if (usuario == null)
             return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(toDto(usuario));
+        Usuario conectado = usuarioService.obtenerUsuarioConectado();
+        boolean esPropietario = conectado != null && conectado.getId().equals(id);
+        return ResponseEntity.ok(toDto(usuario, esPropietario));
     }
 
     @GetMapping("/usuario/{id}/anuncios")
@@ -97,10 +99,14 @@ public class UsuarioController {
         dto.setIndicativo(SanitizerUtil.sanitize(dto.getIndicativo(), ""));
         dto.setLocalizacion(SanitizerUtil.sanitize(dto.getLocalizacion(), ""));
         Usuario actualizado = usuarioService.editarPerfil(dto);
-        return ResponseEntity.ok(toDto(actualizado));
+        return ResponseEntity.ok(toDto(actualizado, true));
     }
 
     private UsuarioPublicoDto toDto(Usuario u) {
+        return toDto(u, false); // por defecto, versión pública (filtrada)
+    }
+
+    private UsuarioPublicoDto toDto(Usuario u, boolean incluirPrivados) {
         return new UsuarioPublicoDto(
                 u.getId(),
                 u.getNombre(),
@@ -108,16 +114,16 @@ public class UsuarioController {
                 u.getFechaRegistro(),
                 reseñaService.calcularMedia(u.getId()),
                 reseñaService.contarReseñas(u.getId()),
-                u.getDescripcion(),
-                u.getIndicativo(),
-                u.getLocalizacion(),
-                u.isMostrarEmail() ? u.getEmail() : null,
-                u.isMostrarNombreReal() ? u.getNombreReal() : null,
-                u.isMostrarApellidos() ? u.getApellidos() : null,
-                u.getActivoDesde(),
-                u.getModos(),
-                u.isQslBuro(),
-                u.isMostrarDescripcionRadio() ? u.getDescripcionRadio() : null,
+                (incluirPrivados || u.isMostrarDescripcionVendedor()) ? u.getDescripcion() : null,
+                u.getIndicativo(), // siempre público
+                (incluirPrivados || u.isMostrarUbicacion()) ? u.getLocalizacion() : null,
+                (incluirPrivados || u.isMostrarEmail()) ? u.getEmail() : null,
+                (incluirPrivados || u.isMostrarNombreReal()) ? u.getNombreReal() : null,
+                (incluirPrivados || u.isMostrarApellidos()) ? u.getApellidos() : null,
+                (incluirPrivados || u.isMostrarActivoDesde()) ? u.getActivoDesde() : null,
+                u.getModos(), // siempre público
+                u.isQslBuro(), // siempre público
+                (incluirPrivados || u.isMostrarDescripcionRadio()) ? u.getDescripcionRadio() : null,
                 u.isMostrarEmail(),
                 u.isMostrarNombreReal(),
                 u.isMostrarApellidos(),
