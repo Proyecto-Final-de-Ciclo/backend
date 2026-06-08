@@ -56,7 +56,9 @@ public class UsuarioController {
         }
         usuario.setNombre(SanitizerUtil.sanitize(usuario.getNombre(), "usuario"));
         existente.setNombre(usuario.getNombre());
-        existente.setEmail(usuario.getEmail());
+        if (usuario.getEmail() != null && !usuario.getEmail().isBlank()) {
+            existente.setEmail(usuario.getEmail());
+        }
         existente.setRol(usuario.getRol());
         Usuario actualizado = usuarioService.editarSinPassword(existente);
         return ResponseEntity.ok(toDto(actualizado));
