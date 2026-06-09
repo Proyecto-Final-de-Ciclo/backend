@@ -6,6 +6,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
+
+// para iniciar sesión
 public class LoginDto {
 	@NotBlank
 	private String nombre;

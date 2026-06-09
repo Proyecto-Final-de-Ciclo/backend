@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 
+// respuesta genérica, para cuando se necesita devolver solo un texto.
 public class MessageResponse {
   private String message;
-
 }

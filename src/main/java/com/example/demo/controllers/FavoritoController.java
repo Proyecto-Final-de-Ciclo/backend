@@ -33,6 +33,7 @@ public class FavoritoController {
     @Autowired
     private UsuarioService usuarioService;
 
+    // MIS FAVORITOS. pasa los favoritos a los dto de anuncios que se pueden mostrar.
     @GetMapping("/favoritos")
     public ResponseEntity<?> getMisFavoritos() {
         Usuario usuario = usuarioService.obtenerUsuarioConectado();
@@ -49,6 +50,9 @@ public class FavoritoController {
         return ResponseEntity.ok(dtos);
     }
 
+
+    // DETERMINA SI EL ANUNCIO ES FAVORITO DEL USUARIO CONECTADO. para el detalle, para ver 
+    // si pintar la estrella o no
     @GetMapping("/favorito/{anuncioId}")
     public ResponseEntity<?> esFavorito(@PathVariable Long anuncioId) {
         Usuario usuario = usuarioService.obtenerUsuarioConectado();
@@ -63,6 +67,8 @@ public class FavoritoController {
         return ResponseEntity.ok(new FavoritoResponseDto(esFav));
     }
 
+
+    // AÑADIR A FAVORITOS.
     @PostMapping("/favorito/{anuncioId}")
     public ResponseEntity<?> addFavorito(@PathVariable Long anuncioId) {
         Usuario usuario = usuarioService.obtenerUsuarioConectado();
@@ -80,6 +86,8 @@ public class FavoritoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(favorito);
     }
 
+
+    // QUITAR DE FAVORITOS
     @DeleteMapping("/favorito/{anuncioId}")
     public ResponseEntity<?> removeFavorito(@PathVariable Long anuncioId) {
         Usuario usuario = usuarioService.obtenerUsuarioConectado();

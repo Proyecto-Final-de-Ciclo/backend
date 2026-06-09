@@ -66,10 +66,11 @@ public class SecurityConfig {
             .requestMatchers(HttpMethod.GET, "/anuncios", "/anuncio/**", "/files/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/categorias", "/categoria/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/noticias", "/cambio", "/llamadas").permitAll()
-            .requestMatchers(HttpMethod.GET, "/usuarios").permitAll()             // búsqueda de radioaficionados
+            .requestMatchers(HttpMethod.GET, "/usuarios").permitAll() // búsqueda de radioaficionados
             .requestMatchers(HttpMethod.GET, "/usuario/*", "/usuario/*/anuncios", "/usuario/*/reseñas").permitAll()
 
             .requestMatchers(HttpMethod.PUT, "/usuario/perfil").authenticated()
+            .requestMatchers(HttpMethod.PUT, "/usuario/password").authenticated()
             .requestMatchers(HttpMethod.PUT, "/usuario/*").hasRole("ADMIN")
             .requestMatchers(HttpMethod.DELETE, "/usuario/**").hasRole("ADMIN")
             .requestMatchers(HttpMethod.POST, "/categoria").hasRole("ADMIN")

@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
+
+// lo público de un usuario
 public class UsuarioPublicoDto {
 
     private Long id;

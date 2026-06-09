@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+
+// anuncio con sus imágenes y con su vendedor UsuarioPublicoDto
 public class AnuncioConImagenesDto {
     private Long id;
     private String nombre;

@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+
+// para las noticias
 public class NoticiaDto {
     private String titulo;
     private String descripcion;

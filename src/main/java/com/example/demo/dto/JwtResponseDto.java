@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 
+// el token que guarda el front para pasarlo en las peticiones
 public class JwtResponseDto {
   private String accessToken;
   private String tokenType;     // "Bearer"

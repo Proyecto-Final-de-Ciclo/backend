@@ -8,6 +8,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
+
+// para registrarse
 public class SignupDto {
 
   @NotBlank(message = "El nombre es obligatorio")

@@ -22,6 +22,8 @@ public class FileStorageService {
 
     private static final List<String> EXTENSIONES_PERMITIDAS = List.of("jpg", "jpeg", "png", "gif", "webp");
 
+
+    // hace validaciones y sube las imágenes a disco
     public String store(MultipartFile file) throws Exception {
         if (file.isEmpty()) {
             throw new Exception("archivo enviado vacío");
@@ -47,6 +49,8 @@ public class FileStorageService {
         }
     }
 
+
+    // borra un archivo de disco por nombre
     public void delete(String filename) throws RuntimeException {
         try {
             Path file = rootLocation.resolve(filename);
@@ -58,6 +62,8 @@ public class FileStorageService {
         }
     }
 
+
+    // carga un archivo como Resource de Spring para serivrlo como HTTP.
     public Resource loadAsResource(String filename) {
         try {
             Path file = rootLocation.resolve(filename);
@@ -73,6 +79,8 @@ public class FileStorageService {
         return null;
     }
 
+
+    // Llama a store varias veces y devuelve los nombres de los archivos creados.
     public List<String> storeMultiple(List<MultipartFile> files) throws Exception {
         List<String> nombres = new ArrayList<>();
         for (MultipartFile file : files) {

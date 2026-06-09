@@ -26,6 +26,9 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
   private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
 
+  // Lee la cabecera Authorization de la petición, si existe y empieza por Bearer extrae el token,
+  // los 7 primeros carcteres, valida el token, y si es válido, extrae el nombre de usuario, carga sus datos
+  // y guarda la autenticación.
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {

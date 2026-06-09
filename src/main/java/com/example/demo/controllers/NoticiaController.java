@@ -16,6 +16,8 @@ public class NoticiaController {
     @Autowired
     private NoticiaService noticiaService;
 
+
+    // DEVUELVE LAS NOTICIAS
     @GetMapping("/noticias")
     public ResponseEntity<?> getNoticias() {
         try {

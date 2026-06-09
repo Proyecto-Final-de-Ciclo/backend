@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.domain.Usuario;
 import com.example.demo.dto.AnuncioConImagenesDto;
+import com.example.demo.dto.CambioPasswordDto;
+import com.example.demo.dto.MessageResponse;
 import com.example.demo.dto.PerfilRequestDto;
 import com.example.demo.dto.UsuarioPublicoDto;
 import com.example.demo.services.AnuncioService;
@@ -34,6 +36,7 @@ public class UsuarioController {
     @Autowired
     private ReseñaService reseñaService;
 
+    // LISTA USUARIOS para el panel de admin
     @GetMapping("/usuarios")
     public ResponseEntity<?> showList(@RequestParam(required = false) String busqueda) {
         List<Usuario> usuarios = usuarioService.buscar(busqueda);
@@ -48,6 +51,8 @@ public class UsuarioController {
         return ResponseEntity.ok(dtos);
     }
 
+    // EDICIÓN DE UN USUARIO para el panel admin. permite cambiar nombre, email y
+    // rol.
     @PutMapping("/usuario/{id}")
     public ResponseEntity<?> editUsuario(@PathVariable Long id, @RequestBody Usuario usuario) {
         Usuario existente = usuarioService.obtenerPorId(id);
@@ -64,6 +69,7 @@ public class UsuarioController {
         return ResponseEntity.ok(toDto(actualizado));
     }
 
+    // BORRAR USUARIO panel admin
     @DeleteMapping("/usuario/{id}")
     public ResponseEntity<?> deleteUsuario(@PathVariable Long id) {
         Usuario existente = usuarioService.obtenerPorId(id);
@@ -74,6 +80,8 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();
     }
 
+    // PERFIL PÚBLICO USUARIO. si es el del usuario conectado devuelve todo,
+    // si no solo lo que se quiere mostrar.
     @GetMapping("/usuario/{id}")
     public ResponseEntity<?> getPerfilPublico(@PathVariable Long id) {
         Usuario usuario = usuarioService.obtenerPorId(id);
@@ -84,6 +92,7 @@ public class UsuarioController {
         return ResponseEntity.ok(toDto(usuario, esPropietario));
     }
 
+    // ANUNCIOS DE UN USUARIO. para ver los anuncios de un usuario desde su perfil
     @GetMapping("/usuario/{id}/anuncios")
     public ResponseEntity<?> getAnunciosDeUsuario(@PathVariable Long id) {
         Usuario usuario = usuarioService.obtenerPorId(id);
@@ -93,6 +102,7 @@ public class UsuarioController {
         return ResponseEntity.ok(anuncios);
     }
 
+    // EDITAR EL PROPIO PERFIL.
     @PutMapping("/usuario/perfil")
     public ResponseEntity<?> editarPerfil(@RequestBody PerfilRequestDto dto) {
         dto.setDescripcion(SanitizerUtil.sanitize(dto.getDescripcion(), ""));
@@ -102,10 +112,24 @@ public class UsuarioController {
         return ResponseEntity.ok(toDto(actualizado, true));
     }
 
-    private UsuarioPublicoDto toDto(Usuario u) {
-        return toDto(u, false); // por defecto, versión pública (filtrada)
+    // CAMIBAR CONTRASEÑA
+    @PutMapping("/usuario/password")
+    public ResponseEntity<?> cambiarPassword(@RequestBody CambioPasswordDto dto) {
+        try {
+            usuarioService.cambiarPassword(dto.getPasswordActual(), dto.getPasswordNueva());
+            return ResponseEntity.ok(new MessageResponse("Contraseña actualizada correctamente"));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(new MessageResponse(e.getMessage()));
+        }
     }
 
+    // oculta campos privados
+    private UsuarioPublicoDto toDto(Usuario u) {
+        return toDto(u, false);
+    }
+
+
+    // versión completa para el propietario del perfil. Calcula media de reseñas.
     private UsuarioPublicoDto toDto(Usuario u, boolean incluirPrivados) {
         return new UsuarioPublicoDto(
                 u.getId(),
@@ -115,14 +139,14 @@ public class UsuarioController {
                 reseñaService.calcularMedia(u.getId()),
                 reseñaService.contarReseñas(u.getId()),
                 (incluirPrivados || u.isMostrarDescripcionVendedor()) ? u.getDescripcion() : null,
-                u.getIndicativo(), // siempre público
+                u.getIndicativo(),
                 (incluirPrivados || u.isMostrarUbicacion()) ? u.getLocalizacion() : null,
                 (incluirPrivados || u.isMostrarEmail()) ? u.getEmail() : null,
                 (incluirPrivados || u.isMostrarNombreReal()) ? u.getNombreReal() : null,
                 (incluirPrivados || u.isMostrarApellidos()) ? u.getApellidos() : null,
                 (incluirPrivados || u.isMostrarActivoDesde()) ? u.getActivoDesde() : null,
-                u.getModos(), // siempre público
-                u.isQslBuro(), // siempre público
+                u.getModos(),
+                u.isQslBuro(),
                 (incluirPrivados || u.isMostrarDescripcionRadio()) ? u.getDescripcionRadio() : null,
                 u.isMostrarEmail(),
                 u.isMostrarNombreReal(),

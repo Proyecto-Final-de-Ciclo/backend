@@ -9,19 +9,16 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.example.demo.domain.Anuncio;
-import com.example.demo.domain.Categoria;
 import com.example.demo.domain.Estado;
 import com.example.demo.domain.Usuario;
 
 public interface AnuncioRepository extends JpaRepository<Anuncio, Long> {
-        List<Anuncio> findByNombreContainingIgnoreCase(String cadena);
-
-        List<Anuncio> findByCategoria(Categoria categoria);
-
         List<Anuncio> findByUsuario(Usuario usuario);
 
+        // comprueba si hay anuncios con esa categoría para no borrarla
         boolean existsByCategoria_Id(Long categoriaId);
 
+        // metodo para todas las combinaciones de filtros, devuelve Page
         @Query("SELECT a FROM Anuncio a WHERE " +
                         "(:nombre    IS NULL OR LOWER(a.nombre) LIKE LOWER(CONCAT('%', :nombre, '%'))) AND " +
                         "(:categoriaId IS NULL OR a.categoria.id = :categoriaId) AND " +

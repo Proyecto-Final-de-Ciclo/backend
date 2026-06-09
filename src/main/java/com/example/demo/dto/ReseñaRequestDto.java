@@ -7,6 +7,8 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
+
+// Para añadir una reseña
 public class ReseñaRequestDto {
     @NotNull
     @Min(1)

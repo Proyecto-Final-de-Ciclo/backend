@@ -15,10 +15,6 @@ public class ImagenService {
     @Autowired
     private ImagenRepository repositorio;
 
-    public List<Imagen> obtenerTodos() {
-        return repositorio.findAll();
-    }
-
     public Imagen obtenerPorId(Long id) {
         return repositorio.findById(id).orElse(null);
     }

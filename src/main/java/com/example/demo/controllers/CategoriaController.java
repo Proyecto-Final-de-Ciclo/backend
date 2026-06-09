@@ -23,11 +23,14 @@ public class CategoriaController {
     @Autowired
     private CategoriaService categoriaService;
 
+    // LISTA CATEGORÍAS
     @GetMapping("/categorias")
     public ResponseEntity<?> getAll() {
         return ResponseEntity.ok(categoriaService.obtenerTodas());
     }
 
+
+    // DEVUELVE CATEGORÍA
     @GetMapping("/categoria/{id}")
     public ResponseEntity<?> getOne(@PathVariable Long id) {
         Categoria categoria = categoriaService.obtenerPorId(id);
@@ -36,6 +39,8 @@ public class CategoriaController {
         return ResponseEntity.ok(categoria);
     }
 
+
+    // CREA CATEGORÍA
     @PostMapping("/categoria")
     public ResponseEntity<?> create(@Valid @RequestBody Categoria categoria) {
         try {
@@ -46,6 +51,8 @@ public class CategoriaController {
         }
     }
 
+
+    // EDITAR CATEGORÍA
     @PutMapping("/categoria/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @Valid @RequestBody Categoria categoria) {
         categoria.setId(id);
@@ -57,6 +64,8 @@ public class CategoriaController {
         }
     }
 
+
+    // BORRAR CATEGORÍA. no se puede si tiene anuncios asociados.
     @DeleteMapping("/categoria/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         try {

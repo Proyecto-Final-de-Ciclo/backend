@@ -26,6 +26,7 @@ public class JwtUtils {
   @Value("${app.jwt.expirationMs}")
   private int jwtExpirationMs;
 
+  // CREA TOKEN.
   public String generateJwtToken(Authentication authentication) {
 
     UserDetailsImpl userPrincipal = (UserDetailsImpl) authentication.getPrincipal();
@@ -42,11 +43,15 @@ public class JwtUtils {
     return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
   }
 
+
+  // DEVUELVE EL NOMBRE DE USUARIO DE UN TOKEN.
   public String getUserNameFromJwtToken(String token) {
     return Jwts.parserBuilder().setSigningKey(key()).build()
         .parseClaimsJws(token).getBody().getSubject();
   }
 
+
+  // VALIDA TOKEN.
   public boolean validateJwtToken(String authToken) {
     try {
       Jwts.parserBuilder().setSigningKey(key()).build().parseClaimsJws(authToken);

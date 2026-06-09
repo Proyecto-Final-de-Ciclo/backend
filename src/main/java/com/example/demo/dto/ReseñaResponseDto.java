@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+
+// Reseña con su autor como UsuarioPublicoDto
 public class ReseñaResponseDto {
     private Long id;
     private Integer puntuacion;

@@ -9,6 +9,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -58,6 +59,7 @@ public class AnuncioController {
 	@Autowired
 	private IaService iaService;
 
+	// LISTADO ANUNCIOS. con filtros y paginación
 	@GetMapping("/anuncios")
 	public ResponseEntity<?> showList(
 			@RequestParam(required = false) String nombre,
@@ -65,6 +67,7 @@ public class AnuncioController {
 			@RequestParam(required = false) Estado estado,
 			@RequestParam(required = false) Double precioMin,
 			@RequestParam(required = false) Double precioMax,
+			@RequestParam(required = false) String orden,
 			@RequestParam(defaultValue = "0") int page,
 			@RequestParam(defaultValue = "12") int size) {
 
@@ -72,7 +75,22 @@ public class AnuncioController {
 			return ResponseEntity.badRequest().build();
 		}
 
-		Pageable pageable = PageRequest.of(page, size);
+		// pasamos el criterio de orden que llega del frontend a un Sort
+		Sort sort;
+		if ("precio_asc".equals(orden)) {
+			sort = Sort.by("precio").ascending();
+		} else if ("precio_desc".equals(orden)) {
+			sort = Sort.by("precio").descending();
+		} else if ("fecha_reciente".equals(orden)) {
+			sort = Sort.by("fechaPublicacion").descending();
+		} else if ("fecha_antigua".equals(orden)) {
+			sort = Sort.by("fechaPublicacion").ascending();
+		} else {
+			sort = Sort.unsorted();
+		}
+
+		// paginación
+		Pageable pageable = PageRequest.of(page, size, sort);
 
 		Page<AnuncioConImagenesDto> resultado = anuncioService.obtenerTodosConImagenes(
 				nombre, categoriaId, estado, precioMin, precioMax, pageable);
@@ -84,6 +102,7 @@ public class AnuncioController {
 		return ResponseEntity.ok(resultado);
 	}
 
+	// DETALLE ANUNCIO
 	@GetMapping({ "/anuncio/{id}" })
 	public ResponseEntity<?> showElement(@PathVariable long id) {
 		Anuncio anuncio = anuncioService.obtenerPorId(id);
@@ -94,6 +113,7 @@ public class AnuncioController {
 		}
 	}
 
+	// IMÁGENES ANUNCIO
 	@GetMapping("/anuncio/{id}/imagenes")
 	public ResponseEntity<?> getImagenes(@PathVariable Long id) {
 		Anuncio anuncio = anuncioService.obtenerPorId(id);
@@ -104,6 +124,9 @@ public class AnuncioController {
 		return ResponseEntity.ok().body(imagenes);
 	}
 
+	// CREAR ANUNCIO. Recibe el JSON, las imagenes y cual es la imagen principal.
+	// solo se pueden crear USER y solo se puede max 6 imagenes. Sanitiza y
+	// guarda las imágenes.
 	@PostMapping(value = "/anuncio", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<?> newElement(
 			@RequestPart("data") @Valid Anuncio nuevoAnuncio,
@@ -143,6 +166,7 @@ public class AnuncioController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(anuncio);
 	}
 
+	// ACTUALIZAR ANUNCIO SIN IMÁGENES. solo puede el dueño
 	@PutMapping({ "/anuncio/{id}" })
 	public ResponseEntity<?> showEdit(@Valid @RequestBody Anuncio anuncio, @PathVariable Long id) {
 		Anuncio editarAnuncio = anuncioService.obtenerPorId(id);
@@ -154,7 +178,7 @@ public class AnuncioController {
 				&& editarAnuncio.getUsuario().getId().equals(usuarioConectado.getId());
 
 		if (!esDueno) {
-			return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // 403
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 		}
 		anuncio.setNombre(SanitizerUtil.sanitize(anuncio.getNombre(), "producto sin nombre"));
 		anuncio.setDescripcion(SanitizerUtil.sanitize(anuncio.getDescripcion(), null));
@@ -163,6 +187,8 @@ public class AnuncioController {
 		return ResponseEntity.status(HttpStatus.OK).body(editarAnuncio);
 	}
 
+	// ACTUALIZAR IMAGENES. comprueba que no pasen de 6, si hay nueva imagen
+	// princpial desmarca todas.
 	@PutMapping(value = "/anuncio/{id}/imagenes", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<?> addImagenes(
 			@PathVariable Long id,
@@ -175,10 +201,9 @@ public class AnuncioController {
 
 		try {
 			Usuario usuarioConectado = usuarioService.obtenerUsuarioConectado();
-			boolean esAdmin = usuarioConectado.getRol() == Rol.ADMIN;
 			boolean esDueno = anuncio.getUsuario() != null
 					&& anuncio.getUsuario().getId().equals(usuarioConectado.getId());
-			if (!esAdmin && !esDueno) {
+			if (!esDueno) {
 				return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 			}
 			int principalIndex = Integer.parseInt(principalStr);
@@ -207,6 +232,8 @@ public class AnuncioController {
 		return ResponseEntity.status(HttpStatus.OK).body(anuncio);
 	}
 
+
+	// CAMBIAR IMAGEN PRINCIPAL.
 	@PutMapping("/anuncio/{id}/imagenes/{imagenId}/principal")
 	public ResponseEntity<?> setPrincipal(
 			@PathVariable Long id,
@@ -217,12 +244,10 @@ public class AnuncioController {
 			return ResponseEntity.notFound().build();
 		}
 		Usuario usuarioConectado = usuarioService.obtenerUsuarioConectado();
-		boolean esAdmin = usuarioConectado.getRol() == Rol.ADMIN;
 		boolean esDueno = anuncio.getUsuario() != null
-				&& anuncio.getUsuario().getId().equals(usuarioConectado.getId());
-
-		if (!esAdmin && !esDueno) {
-			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+					&& anuncio.getUsuario().getId().equals(usuarioConectado.getId());
+			if (!esDueno) {
+				return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 		}
 		List<Imagen> imagenes = imagenService.obtenerPorAnuncio(anuncio);
 		for (Imagen img : imagenes) {
@@ -239,6 +264,8 @@ public class AnuncioController {
 		return ResponseEntity.ok().body(imagen);
 	}
 
+
+	// BORRAR ANUNCIO
 	@DeleteMapping({ "/anuncio/{id}" })
 	public ResponseEntity<?> showDelete(@PathVariable long id) {
 		Anuncio anuncio = anuncioService.obtenerPorId(id);
@@ -257,12 +284,13 @@ public class AnuncioController {
 		return ResponseEntity.noContent().build();
 	}
 
+
+	// BORRAR IMAGEN.
 	@DeleteMapping("/anuncio/{id}/imagenes/{imagenId}")
 	public ResponseEntity<?> deleteImagen(
 			@PathVariable Long id,
 			@PathVariable Long imagenId) {
 
-		// comprobamos que existe el anuncio
 		Anuncio anuncio = anuncioService.obtenerPorId(id);
 		if (anuncio == null) {
 			return ResponseEntity.notFound().build();
@@ -277,7 +305,6 @@ public class AnuncioController {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 		}
 
-		// comprobamos que existe la imagen
 		Imagen imagen = imagenService.obtenerPorId(imagenId);
 		if (imagen == null) {
 			return ResponseEntity.notFound().build();
@@ -296,6 +323,8 @@ public class AnuncioController {
 		return ResponseEntity.noContent().build();
 	}
 
+
+	// DEVUELVE LAS FOTOS.
 	@GetMapping(value = "/files/{filename:.+}")
 	public ResponseEntity<Resource> serveFile(@PathVariable String filename, HttpServletRequest request) {
 		Resource file = fileStorageService.loadAsResource(filename);
@@ -313,6 +342,8 @@ public class AnuncioController {
 				.body(file);
 	}
 
+
+	// ANUNCIOS PROPIOS. apram mis anuncios.
 	@GetMapping("/anuncios/mios")
 	public ResponseEntity<?> showMisAnuncios() {
 		Usuario usuarioConectado = usuarioService.obtenerUsuarioConectado();
@@ -323,6 +354,8 @@ public class AnuncioController {
 		return ResponseEntity.ok(anuncios);
 	}
 
+
+	// GENERA DESCRIPCIÓN POR IA. 
 	@GetMapping("/anuncio/ia/descripcion")
 	public ResponseEntity<?> generarDescripcion(@RequestParam String nombre) {
 		if (nombre == null || nombre.isBlank()) {

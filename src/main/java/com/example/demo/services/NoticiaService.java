@@ -30,6 +30,8 @@ public class NoticiaService {
             "Selvamar Noticias"
     };
 
+
+    // pilla las noticias del último mes, limpia etiquetas HTML y las pasa a noticiasDto. luego las ordena por fecha descendiente.
     public List<NoticiaDto> obtenerNoticias() {
         List<NoticiaDto> resultado = new ArrayList<>();
         LocalDate haceUnMes = LocalDate.now().minusDays(30);

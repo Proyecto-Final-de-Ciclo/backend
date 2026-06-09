@@ -15,11 +15,10 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
   Boolean existsByEmail(String email);
 
+  // para la lista de usuarios del admin y la lista de radioaficionados
   @Query("SELECT u FROM Usuario u WHERE " +
       "(:busqueda IS NULL OR LOWER(u.nombre) LIKE LOWER(CONCAT('%', :busqueda, '%')) OR " +
       "LOWER(u.email) LIKE LOWER(CONCAT('%', :busqueda, '%')) OR " +
       "LOWER(u.indicativo) LIKE LOWER(CONCAT('%', :busqueda, '%')))")
   List<Usuario> buscarPorNombreEmailOIndicativo(@Param("busqueda") String busqueda);
-
-  List<Usuario> findByIndicativoContainingIgnoreCase(String indicativo);
 }

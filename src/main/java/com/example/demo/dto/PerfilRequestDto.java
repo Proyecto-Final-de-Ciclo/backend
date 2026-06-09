@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+
+// para editar el perfil
 public class PerfilRequestDto {
 
     private String descripcion;

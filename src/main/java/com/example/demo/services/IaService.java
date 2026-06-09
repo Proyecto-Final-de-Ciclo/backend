@@ -28,6 +28,9 @@ public class IaService {
                 this.chatModel = chatModel;
         }
 
+
+        // usa Spring AI con OpenAiChatModel, que apunta a OpenRouter, que apunta a Gemini.
+        // envia un prompt más el producto que introduzca el usuario.
         public String generarDescripcion(String nombreProducto) {
                 var options = OpenAiChatOptions.builder()
                                 .model("google/gemini-2.5-flash")

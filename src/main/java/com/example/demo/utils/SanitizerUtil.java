@@ -8,7 +8,8 @@ public class SanitizerUtil {
     // política que elimina scripts
     private static final PolicyFactory POLICY = Sanitizers.FORMATTING.and(Sanitizers.LINKS);
 
-    //  sanitiza un texto eliminando XSS y código malicioso, si el texto era codigo malicioso
+    //  sanitiza un texto eliminando XSS (JavaScript malicioso dentro de un campo de texto normal)
+    // y código malicioso, si el texto era codigo malicioso
     // queda vacio y se asign un valor por defecto
     public static String sanitize(String texto, String valorPorDefecto) {
         if (texto == null) return valorPorDefecto;
@@ -16,7 +17,7 @@ public class SanitizerUtil {
         return resultado.isEmpty() ? valorPorDefecto : resultado;
     }
 
-    // sin valor por defecto (null)
+    // sin valor por defecto (null), para campos opcionales
     public static String sanitize(String texto) {
         return sanitize(texto, null);
     }

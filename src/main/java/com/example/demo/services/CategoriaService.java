@@ -3,7 +3,6 @@ package com.example.demo.services;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.domain.Categoria;
@@ -11,7 +10,6 @@ import com.example.demo.repositories.AnuncioRepository;
 import com.example.demo.repositories.CategoriaRepository;
 
 @Service
-@Primary
 public class CategoriaService {
 
     @Autowired
@@ -35,9 +33,14 @@ public class CategoriaService {
         return categoriaRepositorio.save(categoria);
     }
 
+    // al editar verificamos que exista la categoría y que no esté duplicado el nombre
     public Categoria editar(Categoria categoria) {
         if (categoriaRepositorio.findById(categoria.getId()).isEmpty()) {
             throw new RuntimeException("Categoría no encontrada con id: " + categoria.getId());
+        }
+        Categoria existente = categoriaRepositorio.findByNombre(categoria.getNombre());
+        if (existente != null && !existente.getId().equals(categoria.getId())) {
+            throw new RuntimeException("Ya existe una categoría con ese nombre");
         }
         return categoriaRepositorio.save(categoria);
     }

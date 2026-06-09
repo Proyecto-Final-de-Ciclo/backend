@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.domain.Reseña;
+import com.example.demo.domain.Rol;
 import com.example.demo.domain.Usuario;
 import com.example.demo.dto.ReseñaRequestDto;
 import com.example.demo.dto.ReseñaResponseDto;
@@ -23,6 +24,8 @@ public class ReseñaService {
     @Autowired
     private UsuarioService usuarioService;
 
+    // convierte una reseña a reseñarespondedto, con los datos del autor que
+    // interesan.
     private ReseñaResponseDto toDto(Reseña reseña) {
         UsuarioPublicoDto autorDto = new UsuarioPublicoDto(
                 reseña.getAutor().getId(),
@@ -57,6 +60,7 @@ public class ReseñaService {
                 autorDto);
     }
 
+    // lista reseñas de un vendedor, por fecha descendente.
     public List<ReseñaResponseDto> obtenerPorVendedor(Long vendedorId) {
         List<Reseña> reseñas = reseñaRepositorio.findByVendedorIdOrderByFechaDesc(vendedorId);
         List<ReseñaResponseDto> resultado = new ArrayList<>();
@@ -66,6 +70,8 @@ public class ReseñaService {
         return resultado;
     }
 
+    // obtiene autor y vendedor, valida que no sea reseña de él mismo, crea reseña
+    // de hoy y guarda.
     public ReseñaResponseDto crear(Long vendedorId, ReseñaRequestDto dto) {
         Usuario autor = usuarioService.obtenerUsuarioConectado();
         Usuario vendedor = usuarioService.obtenerPorId(vendedorId);
@@ -89,6 +95,7 @@ public class ReseñaService {
         return toDto(reseñaRepositorio.save(reseña));
     }
 
+    // Puede borrar la reseña el autor o el admin
     public void borrar(Long reseñaId) {
         Reseña reseña = reseñaRepositorio.findById(reseñaId).orElse(null);
         if (reseña == null) {
@@ -96,8 +103,10 @@ public class ReseñaService {
         }
 
         Usuario usuarioConectado = usuarioService.obtenerUsuarioConectado();
+        boolean esAutor = reseña.getAutor().getId().equals(usuarioConectado.getId());
+        boolean esAdmin = usuarioConectado.getRol() == Rol.ADMIN;
 
-        if (!reseña.getAutor().getId().equals(usuarioConectado.getId())) {
+        if (!esAutor && !esAdmin) {
             throw new SecurityException("No tienes permiso para borrar esta reseña");
         }
 

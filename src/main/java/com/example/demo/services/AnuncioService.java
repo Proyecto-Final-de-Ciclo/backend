@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,6 @@ import com.example.demo.repositories.FavoritoRepository;
 import com.example.demo.repositories.ImagenRepository;
 
 @Service
-@Primary
 public class AnuncioService {
     @Autowired
     private AnuncioRepository anuncioRepositorio;
@@ -52,7 +50,8 @@ public class AnuncioService {
         return anuncioRepositorio.save(anuncio);
     }
 
-    // borramos también imagenes y faovirtos
+    
+    // BORRAR ANUNCIO. antes de borrar se borran sus imagenes del disco y de la BD, y los favoritos
     public void borrar(Long id) {
         Anuncio anuncio = obtenerPorId(id);
         if (anuncio == null)
@@ -66,6 +65,8 @@ public class AnuncioService {
         anuncioRepositorio.deleteById(id);
     }
 
+
+    // Pasa anuncio a anuncioconimagenesdto, que es un anuncio con las imagenes y el usuriodto.
     public AnuncioConImagenesDto toDto(Anuncio anuncio) {
         List<Imagen> imagenes = imagenRepositorio.findByAnuncio(anuncio);
         Usuario u = anuncio.getUsuario();
@@ -78,13 +79,13 @@ public class AnuncioService {
                 u.getFechaRegistro(),
                 reseñaService.calcularMedia(uid),
                 reseñaService.contarReseñas(uid),
-                u.getDescripcion(),
+                u.isMostrarDescripcionVendedor() ? u.getDescripcion() : null,
                 u.getIndicativo(),
-                u.getLocalizacion(),
+                u.isMostrarUbicacion() ? u.getLocalizacion() : null,
                 u.isMostrarEmail() ? u.getEmail() : null,
                 u.isMostrarNombreReal() ? u.getNombreReal() : null,
                 u.isMostrarApellidos() ? u.getApellidos() : null,
-                u.getActivoDesde(),
+                u.isMostrarActivoDesde() ? u.getActivoDesde() : null,
                 u.getModos(),
                 u.isQslBuro(),
                 u.isMostrarDescripcionRadio() ? u.getDescripcionRadio() : null,
@@ -108,6 +109,8 @@ public class AnuncioService {
                 imagenes);
     }
 
+
+    // devuelve todos los anuncios con imagenes y filtros
     public Page<AnuncioConImagenesDto> obtenerTodosConImagenes(
             String nombre, Long categoriaId,
             Estado estado, Double precioMin, Double precioMax,
@@ -119,6 +122,8 @@ public class AnuncioService {
         return pagina.map(anuncio -> toDto(anuncio));
     }
 
+
+    // lo de antes pero filtrando solo por usuario, y sin paginación.
     public List<AnuncioConImagenesDto> obtenerPorUsuarioConImagenes(Usuario usuario) {
         List<Anuncio> anuncios = anuncioRepositorio.findByUsuario(usuario);
         List<AnuncioConImagenesDto> resultado = new ArrayList<>();

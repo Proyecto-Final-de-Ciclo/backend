@@ -44,6 +44,8 @@ public class AuthController {
   @Autowired
   JwtUtils jwtUtils;
 
+  // INICIAR SESIÓN. recibe un loginDto (nombre y contraseña), revisa si todo cuadra y
+  // devuleve el token al front, que lo envía en cad apetición, en la cabecera.
   @PostMapping("/signin")
   public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginDto loginDto) {
 
@@ -52,7 +54,6 @@ public class AuthController {
 
     SecurityContextHolder.getContext().setAuthentication(authentication);
     String jwt = jwtUtils.generateJwtToken(authentication);
-
     UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
     String rol = userDetails.getAuthorities().stream().findFirst().map(a -> a.getAuthority()).orElse("ERROR");
 
@@ -63,9 +64,14 @@ public class AuthController {
         rol));
   }
 
+  // REGISTRO. recibe un signupDto (nombre, email, contraseña), lo sanitiza, comrpueba
+  // que no exista, y si no existe crea un usuario, cifra la contraseña, le asigna rol
+  // USER y fecha de hoy.
   @PostMapping("/signup")
   public ResponseEntity<?> registerUser(@Valid @RequestBody SignupDto signUpRequest) {
+
     String nombreSanitizado = SanitizerUtil.sanitize(signUpRequest.getNombre(), "usuario");
+
     if (usuarioRepository.existsByNombre(nombreSanitizado)) {
       return ResponseEntity
           .badRequest()
@@ -78,7 +84,6 @@ public class AuthController {
           .body(new MessageResponse("Error: Ya existe un usuario con ese email"));
     }
 
-    // Create new user's account
     Usuario user = new Usuario();
     user.setNombre(nombreSanitizado);
     user.setPassword(encoder.encode(signUpRequest.getPassword()));
@@ -90,6 +95,7 @@ public class AuthController {
     return ResponseEntity.ok(new MessageResponse("Usuario registrado correctamente"));
   }
 
+  // captura errores de validación de este controlador.
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<?> handleValidationErrors(MethodArgumentNotValidException ex) {
     String error = ex.getBindingResult()

@@ -22,6 +22,8 @@ public class LlamadaQsoService {
                 .findByExpiraEnAfterOrderByFechaPublicacionDesc(LocalDateTime.now());
     }
 
+
+    //antes de crear borra las existentes del usuario
     public LlamadaQso publicar(LlamadaQso llamada, int minutosExpiracion) {
         List<LlamadaQso> anteriores = llamadaQsoRepository.findByUsuario(llamada.getUsuario());
         llamadaQsoRepository.deleteAll(anteriores);
@@ -43,6 +45,8 @@ public class LlamadaQsoService {
         return llamadaQsoRepository.findByUsuario(usuario);
     }
 
+
+    // cada 5 minutos borra las llamadas expiradas
     @Scheduled(fixedRate = 300000)
     public void limpiarExpiradas() {
         List<LlamadaQso> expiradas = llamadaQsoRepository

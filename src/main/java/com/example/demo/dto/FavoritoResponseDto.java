@@ -5,6 +5,8 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
+
+// para saber si pintar la estrella rellena
 public class FavoritoResponseDto {
     private boolean esFavorito;
 }

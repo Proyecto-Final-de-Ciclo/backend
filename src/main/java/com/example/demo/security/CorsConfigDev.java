@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 
 @Configuration
-@Profile("dev")  // Esta configuración se aplicará solo en el perfil de desarrollo
+@Profile("dev")
 public class CorsConfigDev {
 
     @Bean

@@ -29,6 +29,7 @@ public class LlamadaQsoController {
     @Autowired
     private UsuarioService usuarioService;
 
+    // LLAMADAS ACTIVAS. las que aún no han expirado.
     @GetMapping("/llamadas")
     public ResponseEntity<?> obtenerActivas() {
         List<LlamadaQso> llamadas = llamadaQsoService.obtenerActivas();
@@ -38,6 +39,8 @@ public class LlamadaQsoController {
         return ResponseEntity.ok(llamadas);
     }
 
+
+    // PUBLICAR LLAMADA. necesitas indicativo.
     @PostMapping("/llamada")
     public ResponseEntity<?> publicar(
             @Valid @RequestBody LlamadaQso llamada,
@@ -61,6 +64,8 @@ public class LlamadaQsoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(nueva);
     }
 
+
+    // BORRAR LLAMADA. dueño o admin.
     @DeleteMapping("/llamada/{id}")
     public ResponseEntity<?> borrar(@PathVariable Long id) {
 

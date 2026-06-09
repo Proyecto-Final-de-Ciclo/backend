@@ -33,6 +33,7 @@ public class UserDetailsImpl implements UserDetails {
 
   private Collection<? extends GrantedAuthority> authorities;
 
+  // pasa un usuario a un userdetailsimpl para que securityconfig pueda trabajar con él.
   public static UserDetailsImpl build(Usuario user) {
     List<GrantedAuthority> authorities = new ArrayList<>();
     authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRol().name()));
@@ -44,6 +45,7 @@ public class UserDetailsImpl implements UserDetails {
         authorities);
   }
 
+  // verificaciones
   @Override
   public boolean isAccountNonExpired() {
     return true;

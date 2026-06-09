@@ -25,12 +25,15 @@ public class ReseñaController {
     @Autowired
     private ReseñaService reseñaService;
 
+    // OBTENER RESEÑAS DE UN VENDEDOR
     @GetMapping("/usuario/{id}/reseñas")
     public ResponseEntity<?> getReseñas(@PathVariable Long id) {
         List<ReseñaResponseDto> reseñas = reseñaService.obtenerPorVendedor(id);
         return ResponseEntity.ok(reseñas);
     }
 
+
+    // CREAR RESEÑA. 
     @PostMapping("/usuario/{id}/reseña")
     public ResponseEntity<?> crearReseña(@PathVariable Long id,
             @Valid @RequestBody ReseñaRequestDto dto) {
@@ -43,6 +46,8 @@ public class ReseñaController {
         }
     }
 
+
+    // BORRAR RESEÑA. 
     @DeleteMapping("/reseña/{id}")
     public ResponseEntity<?> borrarReseña(@PathVariable Long id) {
         try {

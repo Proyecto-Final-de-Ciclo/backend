@@ -42,21 +42,17 @@ public class Usuario {
   private Rol rol;
 
   private String descripcion;
-
-  private String indicativo;
-
   private String localizacion;
-
-  private boolean mostrarEmail;
 
   private String nombreReal;
   private String apellidos;
-
+  private String indicativo;
   private String activoDesde;
   private String modos;
   private boolean qslBuro;
   private String descripcionRadio;
 
+  private boolean mostrarEmail;
   private boolean mostrarApellidos;
   private boolean mostrarNombreReal;
   private boolean mostrarUbicacion;

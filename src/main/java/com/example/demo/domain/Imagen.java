@@ -20,6 +20,9 @@ public class Imagen {
     @Id
     @GeneratedValue (strategy=GenerationType.IDENTITY)
     private Long id;
+
+    // no es una URL completa, es el nombre del archivo
+    // y el frontend la compone como ${API}/files/${imagen.url}
     private String url;
     private boolean esPrincipal;
     @ManyToOne

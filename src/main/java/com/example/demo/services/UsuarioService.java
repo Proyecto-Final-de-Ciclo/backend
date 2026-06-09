@@ -23,29 +23,16 @@ public class UsuarioService {
     @Autowired
     PasswordEncoder passwordEncoder;
 
-    public List<Usuario> obtenerTodos() {
-        return usuarioRepository.findAll();
-    }
-
     public Usuario obtenerPorId(long id) {
         return usuarioRepository.findById(id).orElse(null);
     }
 
+    // al añadir se encripta la contraseña con BCrypt
     public Usuario añadir(Usuario usuario) {
         String passCrypted = passwordEncoder.encode(usuario.getPassword());
         usuario.setPassword(passCrypted);
         try {
             usuario.setFechaRegistro(LocalDate.now());
-            return usuarioRepository.save(usuario);
-        } catch (DataIntegrityViolationException e) {
-            throw new RuntimeException("Ya existe un usuario con ese nombre o email");
-        }
-    }
-
-    public Usuario editar(Usuario usuario) {
-        String passCrypted = passwordEncoder.encode(usuario.getPassword());
-        usuario.setPassword(passCrypted);
-        try {
             return usuarioRepository.save(usuario);
         } catch (DataIntegrityViolationException e) {
             throw new RuntimeException("Ya existe un usuario con ese nombre o email");
@@ -68,6 +55,8 @@ public class UsuarioService {
         return null;
     }
 
+
+    // si no hay busqueda devuelve todos si la hay busca por nombre, email o indicativo.
     public List<Usuario> buscar(String busqueda) {
         if (busqueda == null || busqueda.isBlank()) {
             return usuarioRepository.findAll();
@@ -75,6 +64,7 @@ public class UsuarioService {
         return usuarioRepository.buscarPorNombreEmailOIndicativo(busqueda);
     }
 
+    // eidtar sin tocar la contraseña. lo usa el admin
     public Usuario editarSinPassword(Usuario usuario) {
         try {
             return usuarioRepository.save(usuario);
@@ -83,6 +73,8 @@ public class UsuarioService {
         }
     }
 
+    // edita el perfil, validando el indicativo y pasandolo a mayusculas. No toca la
+    // contraseña.
     public Usuario editarPerfil(PerfilRequestDto dto) {
         Usuario usuario = obtenerUsuarioConectado();
 
@@ -117,5 +109,24 @@ public class UsuarioService {
         usuario.setMostrarActivoDesde(dto.isMostrarActivoDesde());
 
         return editarSinPassword(usuario);
+    }
+
+    // comprueba la contraseña actual, valida que la nueva tenga más de 6
+    // caracteres, la cifra y la guarda.
+    public void cambiarPassword(String passwordActual, String passwordNueva) {
+        Usuario usuario = obtenerUsuarioConectado();
+        if (usuario == null) {
+            throw new RuntimeException("No hay usuario conectado");
+        }
+
+        if (passwordActual == null || !passwordEncoder.matches(passwordActual, usuario.getPassword())) {
+            throw new RuntimeException("La contraseña actual no es correcta");
+        }
+
+        if (passwordNueva == null || passwordNueva.length() < 6) {
+            throw new RuntimeException("La nueva contraseña debe tener al menos 6 caracteres");
+        }
+        usuario.setPassword(passwordEncoder.encode(passwordNueva));
+        usuarioRepository.save(usuario);
     }
 }

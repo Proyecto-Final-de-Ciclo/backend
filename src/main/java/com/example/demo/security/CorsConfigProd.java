@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 
 @Configuration
-@Profile("prod")  // Esta configuración se aplicará solo en el perfil de producción
+@Profile("prod")
 public class CorsConfigProd {
     @Bean
     public WebMvcConfigurer corsConfigurer() {
