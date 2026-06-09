@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.example.demo.domain.Reseña;
+import com.example.demo.domain.Usuario;
 
 public interface ReseñaRepository extends JpaRepository<Reseña, Long> {
 
@@ -19,4 +20,10 @@ public interface ReseñaRepository extends JpaRepository<Reseña, Long> {
 
     // total de reseñas
     int countByVendedorId(Long vendedorId);
+
+    // borrar todas las reseñas escritas por un usuario
+    void deleteByAutor(Usuario autor);
+
+    // borrar todas las reseñas recibidas por un usuario
+    void deleteByVendedor(Usuario vendedor);
 }

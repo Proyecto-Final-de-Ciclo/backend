@@ -4,15 +4,24 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.example.demo.domain.Anuncio;
+import com.example.demo.domain.Favorito;
+import com.example.demo.domain.LlamadaQso;
 import com.example.demo.domain.Usuario;
 import com.example.demo.dto.PerfilRequestDto;
+import com.example.demo.repositories.AnuncioRepository;
+import com.example.demo.repositories.FavoritoRepository;
+import com.example.demo.repositories.LlamadaQsoRepository;
+import com.example.demo.repositories.ReseñaRepository;
 import com.example.demo.repositories.UsuarioRepository;
 
 @Service
@@ -22,6 +31,22 @@ public class UsuarioService {
 
     @Autowired
     PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private FavoritoRepository favoritoRepositorio;
+
+    @Autowired
+    private ReseñaRepository reseñaRepositorio;
+
+    @Autowired
+    private LlamadaQsoRepository llamadaQsoRepositorio;
+
+    @Autowired
+    private AnuncioRepository anuncioRepositorio;
+
+    @Autowired
+    @Lazy
+    private AnuncioService anuncioService;
 
     public Usuario obtenerPorId(long id) {
         return usuarioRepository.findById(id).orElse(null);
@@ -39,11 +64,26 @@ public class UsuarioService {
         }
     }
 
+    @Transactional
     public void borrar(Long id) {
         Usuario usuario = this.obtenerPorId(id);
-        if (usuario != null) {
-            usuarioRepository.delete(usuario);
+        if (usuario == null) return;
+
+        List<Favorito> favoritos = favoritoRepositorio.findByUsuario(usuario);
+        favoritoRepositorio.deleteAll(favoritos);
+
+        reseñaRepositorio.deleteByAutor(usuario);
+        reseñaRepositorio.deleteByVendedor(usuario);
+
+        List<LlamadaQso> llamadas = llamadaQsoRepositorio.findByUsuario(usuario);
+        llamadaQsoRepositorio.deleteAll(llamadas);
+
+        List<Anuncio> anuncios = anuncioRepositorio.findByUsuario(usuario);
+        for (Anuncio anuncio : anuncios) {
+            anuncioService.borrar(anuncio.getId());
         }
+
+        usuarioRepository.delete(usuario);
     }
 
     public Usuario obtenerUsuarioConectado() {
