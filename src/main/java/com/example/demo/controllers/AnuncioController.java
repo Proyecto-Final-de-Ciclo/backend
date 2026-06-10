@@ -232,7 +232,6 @@ public class AnuncioController {
 		return ResponseEntity.status(HttpStatus.OK).body(anuncio);
 	}
 
-
 	// CAMBIAR IMAGEN PRINCIPAL.
 	@PutMapping("/anuncio/{id}/imagenes/{imagenId}/principal")
 	public ResponseEntity<?> setPrincipal(
@@ -245,9 +244,9 @@ public class AnuncioController {
 		}
 		Usuario usuarioConectado = usuarioService.obtenerUsuarioConectado();
 		boolean esDueno = anuncio.getUsuario() != null
-					&& anuncio.getUsuario().getId().equals(usuarioConectado.getId());
-			if (!esDueno) {
-				return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+				&& anuncio.getUsuario().getId().equals(usuarioConectado.getId());
+		if (!esDueno) {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 		}
 		List<Imagen> imagenes = imagenService.obtenerPorAnuncio(anuncio);
 		for (Imagen img : imagenes) {
@@ -264,7 +263,6 @@ public class AnuncioController {
 		return ResponseEntity.ok().body(imagen);
 	}
 
-
 	// BORRAR ANUNCIO
 	@DeleteMapping({ "/anuncio/{id}" })
 	public ResponseEntity<?> showDelete(@PathVariable long id) {
@@ -280,10 +278,15 @@ public class AnuncioController {
 		if (!esAdmin && !esDueno) {
 			return ResponseEntity.status(HttpStatus.FORBIDDEN).build(); // 403
 		}
+
+		List<Imagen> imagenes = imagenService.obtenerPorAnuncio(anuncio);
+
+		for (Imagen img : imagenes) {
+			fileStorageService.delete(img.getUrl());
+		}
 		anuncioService.borrar(id);
 		return ResponseEntity.noContent().build();
 	}
-
 
 	// BORRAR IMAGEN.
 	@DeleteMapping("/anuncio/{id}/imagenes/{imagenId}")
@@ -323,7 +326,6 @@ public class AnuncioController {
 		return ResponseEntity.noContent().build();
 	}
 
-
 	// DEVUELVE LAS FOTOS.
 	@GetMapping(value = "/files/{filename:.+}")
 	public ResponseEntity<Resource> serveFile(@PathVariable String filename, HttpServletRequest request) {
@@ -342,7 +344,6 @@ public class AnuncioController {
 				.body(file);
 	}
 
-
 	// ANUNCIOS PROPIOS. apram mis anuncios.
 	@GetMapping("/anuncios/mios")
 	public ResponseEntity<?> showMisAnuncios() {
@@ -354,8 +355,7 @@ public class AnuncioController {
 		return ResponseEntity.ok(anuncios);
 	}
 
-
-	// GENERA DESCRIPCIÓN POR IA. 
+	// GENERA DESCRIPCIÓN POR IA.
 	@GetMapping("/anuncio/ia/descripcion")
 	public ResponseEntity<?> generarDescripcion(@RequestParam String nombre) {
 		if (nombre == null || nombre.isBlank()) {
