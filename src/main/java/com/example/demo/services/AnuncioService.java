@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.domain.Anuncio;
 import com.example.demo.domain.Estado;
@@ -52,6 +53,7 @@ public class AnuncioService {
 
     
     // BORRAR ANUNCIO. antes de borrar se borran sus imagenes del disco y de la BD, y los favoritos
+    @Transactional
     public void borrar(Long id) {
         Anuncio anuncio = obtenerPorId(id);
         if (anuncio == null)

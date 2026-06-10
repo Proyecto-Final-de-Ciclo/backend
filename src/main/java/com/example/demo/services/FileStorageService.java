@@ -51,14 +51,12 @@ public class FileStorageService {
 
 
     // borra un archivo de disco por nombre
-    public void delete(String filename) throws RuntimeException {
+    public void delete(String filename) {
         try {
             Path file = rootLocation.resolve(filename);
-            if (!Files.exists(file))
-                throw new RuntimeException("No existe el fichero");
-            Files.delete(file);
+            Files.deleteIfExists(file);
         } catch (IOException ioe) {
-            throw new RuntimeException("Error en borrado");
+            System.err.println("Error en borrado de " + filename);
         }
     }
 
